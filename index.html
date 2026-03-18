@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting started with Claude — Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F5F8FF; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  .quiz-wrap { max-width: 640px; width: 100%; }
+  .quiz-header { margin-bottom: 2rem; }
+  .quiz-header h1 { font-size: 24px; font-weight: 600; margin: 0 0 6px; color: #1B2A5E; }
+  .quiz-header p { font-size: 15px; color: #4A5A8A; margin: 0; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: #028090; }
+  .brand-label { font-size: 13px; color: #028090; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .progress-bar-bg { height: 4px; background: #E8EDF5; border-radius: 2px; margin-bottom: 2rem; }
+  .progress-bar-fill { height: 4px; background: #028090; border-radius: 2px; transition: width 0.4s ease; }
+  .question-card { background: #fff; border: 1px solid #E8EDF5; border-radius: 12px; padding: 1.75rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(27,42,94,0.06); }
+  .question-num { font-size: 12px; color: #028090; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .question-text { font-size: 17px; font-weight: 500; color: #1B2A5E; margin: 0 0 1.5rem; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #F5F8FF; border: 1px solid #E8EDF5; border-radius: 8px; padding: 13px 16px; text-align: left; font-size: 15px; color: #1B2A5E; cursor: pointer; transition: border-color 0.15s, background 0.15s; line-height: 1.4; font-family: inherit; }
+  .option-btn:hover { border-color: #028090; background: #fff; }
+  .option-btn.correct { border-color: #059669; background: #D1FAE5; color: #065F46; font-weight: 500; }
+  .option-btn.wrong { border-color: #DC2626; background: #FEE2E2; color: #991B1B; }
+  .option-btn.reveal-correct { border-color: #059669; background: #D1FAE5; color: #065F46; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 14px; font-size: 14px; padding: 12px 16px; border-radius: 8px; display: none; line-height: 1.6; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: #D1FAE5; color: #065F46; border-left: 3px solid #059669; }
+  .feedback.wrong-fb { background: #FEE2E2; color: #991B1B; border-left: 3px solid #DC2626; }
+  .next-btn { margin-top: 1.25rem; padding: 11px 28px; background: #1B2A5E; border: none; border-radius: 8px; color: #fff; font-size: 15px; cursor: pointer; display: none; font-family: inherit; font-weight: 500; }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { background: #253671; }
+  .score-card { background: #fff; border: 1px solid #E8EDF5; border-radius: 12px; padding: 3rem 2rem; text-align: center; display: none; box-shadow: 0 1px 3px rgba(27,42,94,0.06); }
+  .score-card.show { display: block; }
+  .score-big { font-size: 64px; font-weight: 700; color: #028090; line-height: 1; margin-bottom: 6px; }
+  .score-label { font-size: 15px; color: #4A5A8A; margin-bottom: 1.5rem; }
+  .score-message { font-size: 16px; color: #1B2A5E; margin-bottom: 2rem; line-height: 1.7; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .score-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .retry-btn { padding: 11px 28px; background: #028090; border: none; border-radius: 8px; color: #fff; font-size: 15px; cursor: pointer; font-family: inherit; font-weight: 500; }
+  .retry-btn:hover { background: #026070; }
+  .cta-btn { padding: 11px 28px; background: #F97316; border: none; border-radius: 8px; color: #fff; font-size: 15px; cursor: pointer; font-family: inherit; font-weight: 500; text-decoration: none; display: inline-block; }
+  .cta-btn:hover { background: #EA6C10; }
+  .footer { margin-top: 2rem; text-align: center; font-size: 13px; color: #4A5A8A; }
+</style>
+</head>
+<body>
+<div class="quiz-wrap">
+  <div class="brand"><div class="brand-dot"></div><span class="brand-label">enCappture Lunch &amp; Learn</span></div>
+  <div class="quiz-header">
+    <h1>Getting started with Claude</h1>
+    <p>5 questions to set you up for success</p>
+  </div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress" style="width:0%"></div></div>
+  <div id="quiz-body"></div>
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-num"></div>
+    <div class="score-label" id="score-label"></div>
+    <div class="score-message" id="score-msg"></div>
+    <div class="score-actions">
+      <button class="retry-btn" onclick="startQuiz()">Try again</button>
+      <a class="cta-btn" href="https://claude.ai" target="_blank">Open claude.ai</a>
+    </div>
+  </div>
+  <div class="footer">Built with Claude &mdash; claude.ai</div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "What's the single most important thing to include when asking Claude for help?",
+    options: [
+      "Lots of please and thank yous",
+      "Context — who you are, what you need, and who it's for",
+      "Very short prompts to save time",
+      "The exact word count you want"
+    ],
+    correct: 1,
+    explanation: "Context is everything. The more Claude understands your situation, the better the output. Think of it like briefing a smart colleague — not Googling a keyword."
+  },
+  {
+    q: "You ask Claude to draft an email and it's too long. What should you do?",
+    options: [
+      "Start a brand new conversation and try again",
+      "Accept it — Claude's first answer is usually its best",
+      "Just say 'make it shorter' — Claude will revise it",
+      "Copy it into Word and cut it yourself"
+    ],
+    correct: 2,
+    explanation: "Claude is built for back-and-forth. 'Make it shorter', 'more formal', 'add a call to action' — treat the first response as a draft, not a final answer."
+  },
+  {
+    q: "What is an Artifact in Claude?",
+    options: [
+      "A saved conversation you can return to later",
+      "A working, interactive output — like a quiz, calculator, or live tool — built right in the chat",
+      "A file you upload from your computer",
+      "A premium feature only available on paid plans"
+    ],
+    correct: 1,
+    explanation: "Artifacts are one of Claude's most powerful features. Claude can build working apps, quizzes, dashboards, and visualizations — all inside the chat window. Gemini can't do this."
+  },
+  {
+    q: "You want Claude to help you prepare for a tough client call. What's the best approach?",
+    options: [
+      "Ask Claude to write a script for you to read",
+      "Ask Claude to summarize the client's industry",
+      "Tell Claude to role-play as the skeptical client and interview you",
+      "Ask Claude what questions to expect"
+    ],
+    correct: 2,
+    explanation: "Role-play is one of Claude's most underused superpowers. 'You are a skeptical client — interview me' gives you a real practice run, not just a list of tips."
+  },
+  {
+    q: "What's the best way to get Claude to find problems you haven't spotted in a document?",
+    options: [
+      "Ask 'can you summarize this for me?'",
+      "Ask 'what are the three biggest risks or gaps nobody has flagged here?'",
+      "Ask 'is this document well written?'",
+      "Ask Claude to proofread it for spelling errors"
+    ],
+    correct: 1,
+    explanation: "Gemini summarizes what's there. Claude finds what's missing. The key is asking it to read critically — 'what risks has nobody flagged?' gets you analysis, not a recap."
+  }
+];
+
+let current = 0, score = 0, answered = false;
+
+function startQuiz() {
+  current = 0; score = 0; answered = false;
+  document.getElementById('score-card').classList.remove('show');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('progress').style.width = (current / questions.length * 100) + '%';
+  answered = false;
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="question-card">
+      <div class="question-num">Question ${current + 1} of ${questions.length}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options" id="options">
+        ${q.options.map((opt, i) => `<button class="option-btn" onclick="selectAnswer(${i})">${opt}</button>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+        ${current < questions.length - 1 ? 'Next question' : 'See my score'}
+      </button>
+    </div>`;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  const feedback = document.getElementById('feedback');
+  btns.forEach(b => b.disabled = true);
+  if (idx === q.correct) {
+    score++;
+    btns[idx].classList.add('correct');
+    feedback.className = 'feedback show correct-fb';
+    feedback.textContent = '✓ ' + q.explanation;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.correct].classList.add('reveal-correct');
+    feedback.className = 'feedback show wrong-fb';
+    feedback.textContent = '✗ ' + q.explanation;
+  }
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) { showScore(); } else { renderQuestion(); }
+}
+
+function showScore() {
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('quiz-body').innerHTML = '';
+  const msgs = {
+    5: "You're already thinking like a power user. Open claude.ai and try one of the five demos from today's session.",
+    4: "Strong start. You've got the right instincts — now it's about building the habit. Try the Artifacts demo first.",
+    3: "Good foundation. The prompting tips on your one-pager will make the biggest difference for you this week.",
+    2: "You picked up the key concepts. Start with just one prompt from your handout — the Transform demo is the easiest first win.",
+    1: "Everyone starts somewhere. Go to claude.ai tonight, create your free account, and try the meeting notes prompt. That's it.",
+    0: "Go to claude.ai tonight, create your free account, and try the meeting notes prompt. That's it."
+  };
+  document.getElementById('score-num').textContent = score + '/5';
+  document.getElementById('score-label').textContent = Math.round(score / questions.length * 100) + '% correct';
+  document.getElementById('score-msg').textContent = msgs[score] || msgs[0];
+  document.getElementById('score-card').classList.add('show');
+}
+
+startQuiz();
+</script>
+</body>
+</html>
